@@ -6,6 +6,7 @@ from googleapiclient.http import MediaInMemoryUpload
 import traceback
 import os
 import json
+import ast
 
 app = Flask(__name__)
 
@@ -34,10 +35,9 @@ def upload():
             return '❌ Missing service account credentials in environment.', 500
 
         raw_json = os.environ['GOOGLE_SERVICE_ACCOUNT_JSON']
-        fixed_json = raw_json.replace('\\n', '\n')
+        fixed_json = raw_json.replace('\\n', '\n')  # Only if raw_json was correctly escaped
         creds = service_account.Credentials.from_service_account_info(
-            json.loads(fixed_json),
-            scopes=SCOPES
+            json.loads(fixed_json), scopes=SCOPES
         )
 
         drive_service = build('drive', 'v3', credentials=creds)
