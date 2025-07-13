@@ -1,6 +1,7 @@
 import os
 import pickle
-from flask import Flask, request, redirect
+import base64
+from flask import Flask, request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaInMemoryUpload
@@ -8,21 +9,32 @@ from datetime import datetime
 
 app = Flask(__name__)
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
-CREDENTIALS_FILE = '/etc/secrets/client_secret.json'
-TOKEN_FILE = '/etc/secrets/token.pickle'
 
 def get_drive_service():
     creds = None
-    if os.path.exists(TOKEN_FILE):
-        with open(TOKEN_FILE, 'rb') as token:
-            creds = pickle.load(token)
+
+    # Load token.pickle from base64 string stored in environment
+    token_b64 = os.environ.get("TOKEN_PICKLE_B64")
+    if token_b64:
+        creds = pickle.loads(base64.b64decode(token_b64))
 
     if not creds or not creds.valid:
-        flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
+        # Load client_secret.json from environment
+        client_secret_json = os.environ.get("CLIENT_SECRET_JSON")
+        if not client_secret_json:
+            raise Exception("Missing CLIENT_SECRET_JSON in environment")
+
+        # Write to temp file since InstalledAppFlow expects a file
+        with open("temp_client_secret.json", "w") as f:
+            f.write(client_secret_json)
+
+        flow = InstalledAppFlow.from_client_secrets_file("temp_client_secret.json", SCOPES)
         creds = flow.run_local_server(port=0)
 
-        with open(TOKEN_FILE, 'wb') as token:
-            pickle.dump(creds, token)
+        # Save token as base64 to set it back in environment later
+        token_data = base64.b64encode(pickle.dumps(creds)).decode("utf-8")
+        print(f"🔐 TOKEN_PICKLE_B64={token_data}")
+        # In production, you'd want to save this elsewhere instead of printing
 
     return build('drive', 'v3', credentials=creds)
 
@@ -76,4 +88,4 @@ def upload():
         return f"❌ Internal error: {str(e)}", 500
 
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(host="0.0.0.0", port=5000)
