@@ -3,3 +3,5 @@ __pycache__/
 *.pyc
 .env
 service_account.json
+generate_token.py
+client_secret.json
