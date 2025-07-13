@@ -8,8 +8,8 @@ from datetime import datetime
 
 app = Flask(__name__)
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
-CREDENTIALS_FILE = 'client_secret.json'
-TOKEN_FILE = 'token.pickle'
+CREDENTIALS_FILE = '/etc/secrets/client_secret.json'
+TOKEN_FILE = '/etc/secrets/token.pickle'
 
 def get_drive_service():
     creds = None
