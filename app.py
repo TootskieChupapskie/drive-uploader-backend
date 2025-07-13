@@ -33,10 +33,13 @@ def upload():
         if not creds_json:
             return '❌ Missing service account credentials in environment.', 500
 
+        raw_json = os.environ['GOOGLE_SERVICE_ACCOUNT_JSON']
+        fixed_json = raw_json.replace('\\n', '\n')
         creds = service_account.Credentials.from_service_account_info(
-            json.loads(creds_json),
+            json.loads(fixed_json),
             scopes=SCOPES
         )
+
         drive_service = build('drive', 'v3', credentials=creds)
 
         # Check if folder exists
