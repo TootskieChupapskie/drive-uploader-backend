@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: drive-uploader-backend
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: GOOGLE_SERVICE_ACCOUNT_JSON
+        value: YOUR_JSON_HERE_BASE64_ENCODED_OR_STRINGIFIED
