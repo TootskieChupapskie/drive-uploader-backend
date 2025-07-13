@@ -10,7 +10,7 @@ import json
 app = Flask(__name__)
 
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
-PARENT_FOLDER_ID = '1SdU48QU_f2kC0prtj3Q-3a-8WTAqI_dM'  # Replace with your real parent folder ID
+PARENT_FOLDER_ID = '14_s4B2WYhZMJhPdwZanKLQG2zEDnoZrW'  # Replace with your real parent folder ID
 
 @app.route('/upload', methods=['POST'])
 def upload():
